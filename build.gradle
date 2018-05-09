@@ -1,0 +1,60 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.1.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.jess.stream'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.9
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/milestone" }
+}
+
+
+ext {
+	springCloudVersion = 'Finchley.RC1'
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-webflux')
+	compile('org.springframework.cloud:spring-cloud-stream')
+	compile('org.springframework.cloud:spring-cloud-stream-binder-kafka')
+	compile('org.springframework.kafka:spring-kafka')
+	compile('org.projectlombok:lombok')
+
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+	testCompile('org.springframework.cloud:spring-cloud-stream-test-support')
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': 'com.jess.stream.demo.DemoApplication'
+	}
+}
+
+
+task runApplication(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+
+    main = 'com.jess.stream.demo.DemoApplication'
+}
