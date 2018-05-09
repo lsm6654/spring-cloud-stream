@@ -20,7 +20,7 @@ import reactor.core.publisher.Mono;
 public class LogConsumerListener {
 
     private final WebClient webClient;
-    private final String hostUri = "localhost:8080/datas";
+    private final String dataUri = "http://localhost:8080/datas";
 
     @Autowired
     LogConsumerListener(WebClient webClient) {
@@ -28,18 +28,17 @@ public class LogConsumerListener {
     }
 
     @StreamListener(Processor.INPUT)
-    //@SendTo(Processor.OUTPUT)
     public void consumeMessage(Log message) {
         log.debug("consume Message : {}", message);
 
-        Mono<LogResponse> logResponseMono = webClient.post().uri(hostUri)
+        Mono<LogResponse> logResponseMono = webClient.post().uri(dataUri)
                 .body(BodyInserters.fromPublisher(Mono.just(message), Log.class))
-                .retrieve().bodyToMono(new ParameterizedTypeReference<LogResponse>() {});
+                .retrieve().bodyToMono(new ParameterizedTypeReference<LogResponse>() {}).log();
 
         logResponseMono.subscribe(
                 logResponse -> log.info("subscribe success : {}", logResponse),
                 error -> log.error("failed : {}", error),
-                () -> log.info("completed {}")
+                () -> log.info("completed")
                 );
     }
 }
